@@ -20,7 +20,7 @@ export default async function Reviews({ params }: { params: Promise<{ productId:
 
     const reviewsMap = someReviewListFromAPI.map((review) => (
         <li key={review.id}>
-            <Link className="hover:underline" href={`/routing-tutorial/products/${productId}/reviews/${review.id}`}>review {review.id}</Link>
+            <Link className="hover:underline" href={`/products/${productId}/reviews/${review.id}`}>review {review.id}</Link>
         </li>
     ));
     return (
