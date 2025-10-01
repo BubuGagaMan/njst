@@ -26,7 +26,7 @@ export default function About() {
             <h1>Programmatic routing</h1>
             <button onClick={handleClick}>Route dynamically (click)</button>
             <select name="selectWhetherToRedirect" onChange={(e) => setRedirectChoice(Number(e.target.value))}>
-                <option value={0}>DON'T redirect me to home - stay here</option>
+                <option value={0}>DO NOT redirect me to home - stay here</option>
                 <option value={1}>Redirect me to home</option>
             </select>
             <button onClick={handleRedirectClick}>Redirect button test</button>

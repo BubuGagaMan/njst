@@ -13,7 +13,7 @@ export default function NotFound() {
             </h1>
             <h2>
                 Here is the path: | {pathname} | - this can be split in order to extract a specific parameter, e.g.
-                pathname.split("/")[index x]
+                pathname.split(&quot;/&quot;)[index x]
             </h2>
         </div>
     );
