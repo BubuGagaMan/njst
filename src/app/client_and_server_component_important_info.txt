@@ -1,0 +1,109 @@
+Preferably, components should be server components to allow for a performance gain via server-side rendering
+Furthermore, server components can also fetch easier, using the inbuilt fetch, without any useEffect wrappers
+
+However, client components are sometimes necessary for clinet-side interactivity
+
+An important detail, is that, in next, when a client component is used, all of its returned components, also
+become client-side rendered, even if they are server components, for example:
+
+NavBar CLIENT component, utilising the NavLinks and NavSearch SERVER components:
+
+```
+"use client"
+... imports ...
+
+// need some hook/state logic in the NavBar - forcing it to be a client component
+export default NavBar () {
+    const [searchString, setSearchString] = useState("")
+    return (
+        <>
+            <NavLinks />
+            <NavSearch search={searchString}/>
+        </>
+    )
+}
+```
+
+Here, NavBar is a client component and so, any components used within it, will also become client-side rendered,
+even if, they were server components
+
+There are 2 valid patterns:
+
+PATTERN 1:
+
+The first one, to attempt to position all of the client components closer to the bottom of the component tree
+
+Therefore, IF LOGICALLY POSSIBLE - bring the state logic in "lower" components, for example, say that the 
+searchString state can be transferred to the NavSearch component.
+
+Then - only the NavSearch component will be a client component and the rest can be server, so the architecture would go from:
+
+                ______NavBar - CC______
+                |                     |
+                |                     | 
+                V                     V  
+        NavLinks - SC (C Render)  NavSearch - SC (C Render)
+
+To:
+
+
+                ______NavBar - SC______
+                |                     |
+                |                     | 
+                V                     V  
+        NavLinks - SC (SC Render)  NavSearch - CC (C Render)
+
+
+PATTERN 2:
+
+A second pattern, is to, instead of directly consuming components within a parent client component,
+create slots in the client component, making it a wrapper,
+
+This wrapper can then be used around server components - without making them client-side rendered, even 
+as they are technically nested within a client component
+
+Both patterns have their own use cases, for example, in the example above, pattern 1 is certainly a better solution, as,
+if we try to create a NavBar wrapper:
+
+```
+"use client"
+export default NavBar ({ children }) {
+    const [searchString, setSearchString] = useState("")
+    return (
+        <>
+            { children }
+        </>
+    )
+}
+```
+
+... then use the NavBar in a root component...
+
+We still might struggle/be unable to pass down the state to the children, nevertheless, the children, will still
+retain their server-side rendering in this situation, this pattern may be suitable in situations such as
+context providers - see the /context-providers folder for an example
+
+We could also use this pattern, if we are trying to fetch some data, whereby a server component can be made for the fetch and nested
+wherever it is needed, in a client component. Just as a reminder, any prop can be used, not just "children"
+
+EXTRA INFO:
+
+It may be confusing as to why do the wrappers work - don't they still have client components being parents to server components?
+
+Here is the process:
+
+1. Server Renders - React starts rendering on the server - encountering the root component using the client wrapper
+
+2. The chient wrapper's children (the server components) are rendered first - particularly
+The output of the server components, is not component code, but a static, pre-rendered description of the UI, called the RSC Payload
+
+3. The client component, does not recieve the code for the children, instead, it recieves an already rendered HTML
+result from the server - as the children prop
+
+4. Client hydration - on the client (in the browser), React hydrates the app - it makes the placeholder for the <ContextComponent> and loads its JS.
+Then - the static HTML of the children (already sent from the server) simply slots inside the client-side component
+
+
+MORE EXAMPLES:
+
+see https://www.youtube.com/watch?v=k7o9R6eaSes at 4:43 for examples
